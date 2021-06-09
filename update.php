@@ -1,25 +1,28 @@
 <?php
 
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+header('Access-Control-Allow-Methods: PUT');
+header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 include_once 'dbConnection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    echo "this is a put request\n";
-    parse_str(file_get_contents("php://input"),$post_vars);
-    print_r($post_vars);
-    echo $post_vars['assignee']." is the fruit\n";
-    echo "I want ".$post_vars['priority']." of them\n\n";
+    $data = json_decode(file_get_contents("php://input"));
+    // echo $data->id;
+    $id = $data->id;
+    $status = $data->status;
 }
-die();
 
-if ($_POST['dropdownValue']) {
-    $selectedVal  = explode('|', $_POST['dropdownValue']);
-    // echo "Selected value in php ".$selectedVal[0] + $selectedVal[1];
-    // print_r($selectedVal);
-    $id = $selectedVal[0];
-    $status = $selectedVal[1];
+if (isset($id)) {
 
-    $sql = "UPDATE `test`.`request` SET requeststatus = $status WHERE idrequest = '$id'";
+    $sql = "UPDATE `test`.`request` SET requeststatus = '$status' WHERE idrequest = '$id'";
     $result = $conn->query($sql);
+    if ($result) {
+        $response = ["success" => "Data updated successfully"];
+        echo json_encode($response);
+    } else {
+        echo ("Error: " . $conn->error);
+    }
 } else {
-    die("No selected value");
+    echo json_encode(['error'=>'enter ID value']);
 }
